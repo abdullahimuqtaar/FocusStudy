@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FocusStudy – Study Smarter. Focus Longer. Learn Better.</title>
+  <meta name="description" content="FocusStudy is a simple study timer with focus sessions, breaks, progress tracking and study tips.">
+
+  <!-- Fonts (the site still works with fallback fonts if you are offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Sets light/dark theme before the page paints, so there is no flash -->
+  <script>
+    (function () {
+      try {
+        var saved = JSON.parse(localStorage.getItem('focusstudy.v1'));
+        var theme = (saved && saved.settings && saved.settings.theme) || 'system';
+        if (theme === 'system') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20v-8M12 20V5M19 20v-5"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4v4.5H8"/><path d="M12 8v4.5l3 1.5"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  </svg>
+
+  <!-- ===== Header and navigation ===== -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" fill="var(--primary)"/>
+          <path d="M16 16V6a10 10 0 0 1 10 10Z" fill="var(--mark)"/>
+        </svg>
+        <span>FocusStudy</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#home" data-view-link="home"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></a>
+        <a href="#study" data-view-link="study"><svg class="icon" aria-hidden="true"><use href="#i-timer"/></svg><span>Study</span></a>
+        <a href="#progress" data-view-link="progress"><svg class="icon" aria-hidden="true"><use href="#i-chart"/></svg><span>Progress</span></a>
+        <a href="#history" data-view-link="history"><svg class="icon" aria-hidden="true"><use href="#i-history"/></svg><span>History</span></a>
+        <a href="#tips" data-view-link="tips"><svg class="icon" aria-hidden="true"><use href="#i-bulb"/></svg><span>Study Tips</span></a>
+        <a href="#settings" data-view-link="settings"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg><span>Settings</span></a>
+      </nav>
+
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to dark mode">
+        <svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        <svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <noscript><p class="card" style="padding:1.5rem">FocusStudy needs JavaScript to run the timer. Please turn it on in your browser.</p></noscript>
+
+    <!-- ===== HOME ===== -->
+    <section class="view" id="view-home" data-view="home" aria-labelledby="home-title">
+      <div class="hero">
+        <div class="hero-copy">
+          <h1 id="home-title">
+            <span>Study Smarter.</span>
+            <span>Focus Longer.</span>
+            <span>Learn Better.</span>
+          </h1>
+          <p class="lead">Turn your study time into focused sessions and build better learning habits every day.</p>
+
+          <a class="btn btn-primary btn-lg" href="#study">Start Studying</a>
+
+          <div class="quick-times">
+            <p class="quick-label" id="quick-label">Pick a session length</p>
+            <div class="chip-row" id="hero-chips" role="group" aria-labelledby="quick-label">
+              <button class="chip" type="button" data-minutes="25">25 Minutes</button>
+              <button class="chip" type="button" data-minutes="30">30 Minutes</button>
+              <button class="chip" type="button" data-minutes="40">40 Minutes</button>
+              <button class="chip" type="button" data-minutes="45">45 Minutes</button>
+              <button class="chip" type="button" data-minutes="60">60 Minutes</button>
+              <button class="chip" type="button" data-custom="true">Custom</button>
+            </div>
+            <div class="inline-field" id="hero-custom" hidden>
+              <label for="hero-custom-input">Custom length</label>
+              <input class="input input-sm" id="hero-custom-input" type="number" min="1" max="240" inputmode="numeric">
+              <span>minutes</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-timer card" aria-hidden="true">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 120 120">
+              <circle class="ring-track" cx="60" cy="60" r="54" pathLength="100"/>
+              <circle class="ring-arc hero-arc" cx="60" cy="60" r="54" pathLength="100"/>
+            </svg>
+            <div class="ring-time"><span class="clock" id="hero-time">25:00</span></div>
+          </div>
+          <p class="hero-mode" id="hero-mode">Quick Focus</p>
+        </div>
+      </div>
+
+      <section class="how" aria-labelledby="how-title">
+        <h2 id="how-title">How it works</h2>
+        <ol class="steps">
+          <li><strong>Choose</strong><span>Name what you are studying and pick how long.</span></li>
+          <li><strong>Focus</strong><span>The screen shows only your subject, goal and timer.</span></li>
+          <li><strong>Rest</strong><span>When time is up, take a short break.</span></li>
+          <li><strong>Track</strong><span>See your minutes, sessions and streak grow.</span></li>
+        </ol>
+      </section>
+    </section>
+
+    <!-- ===== STUDY ===== -->
+    <section class="view" id="view-study" data-view="study" aria-labelledby="study-title" hidden>
+      <header class="view-head">
+        <h2 id="study-title">Start a session</h2>
+        <p>Choose what you are studying and for how long.</p>
+      </header>
+
+      <div class="study-grid">
+        <form class="setup card" id="setup-form" autocomplete="off">
+          <div class="field">
+            <label for="subject-input">What are you studying?</label>
+            <input class="input" id="subject-input" type="text" maxlength="60" list="subject-options" placeholder="For example: Biology">
+            <datalist id="subject-options"></datalist>
+            <div class="chip-row chip-row-small" id="subject-chips" aria-label="Suggested subjects">
+              <button class="chip chip-small" type="button" data-subject="Mathematics">Mathematics</button>
+              <button class="chip chip-small" type="button" data-subject="Biology">Biology</button>
+              <button class="chip chip-small" type="button" data-subject="English">English</button>
+              <button class="chip chip-small" type="button" data-subject="Programming">Programming</button>
+              <button class="chip chip-small" type="button" data-subject="Chemistry">Chemistry</button>
+              <button class="chip chip-small" type="button" data-subject="History">History</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="goal-input">Today's goal</label>
+            <input class="input" id="goal-input" type="text" maxlength="120" placeholder="For example: Finish Chapter 3">
+
+            <div class="recommend" aria-live="polite">
+              <p class="recommend-text" id="rec-text"></p>
+              <button class="btn btn-small btn-outline" type="button" id="rec-use" hidden>Use this length</button>
+              <div class="chip-row chip-row-small" id="goal-examples">
+                <button class="chip chip-small" type="button" data-goal="Review a small topic">Review a small topic</button>
+                <button class="chip chip-small" type="button" data-goal="Study a difficult chapter">Study a difficult chapter</button>
+              </div>
+            </div>
+          </div>
+
+          <fieldset class="modes">
+            <legend>Study mode</legend>
+            <label class="mode">
+              <input type="radio" name="mode" value="quick">
+              <span class="mode-body"><span class="mode-name">Quick Focus</span><span class="mode-time">25 min</span><span class="mode-desc">A light start for small topics.</span></span>
+            </label>
+            <label class="mode">
+              <input type="radio" name="mode" value="standard">
+              <span class="mode-body"><span class="mode-name">Standard Focus</span><span class="mode-time">30 min</span><span class="mode-desc">A steady block for everyday study.</span></span>
+            </label>
+            <label class="mode">
+              <input type="radio" name="mode" value="deep">
+              <span class="mode-body"><span class="mode-name">Deep Focus</span><span class="mode-time">40 min</span><span class="mode-desc">Room to work through harder material.</span></span>
+            </label>
+            <label class="mode">
+              <input type="radio" name="mode" value="long">
+              <span class="mode-body"><span class="mode-name">Long Focus</span><span class="mode-time">60 min</span><span class="mode-desc">For big chapters and exam practice.</span></span>
+            </label>
+            <label class="mode mode-wide">
+              <input type="radio" name="mode" value="custom">
+              <span class="mode-body"><span class="mode-name">Custom Session</span><span class="mode-time">Your time</span><span class="mode-desc">Set exactly how long you want to study.</span></span>
+            </label>
+          </fieldset>
+
+          <div class="inline-field" id="custom-row" hidden>
+            <label for="custom-input">Custom length</label>
+            <input class="input input-sm" id="custom-input" type="number" min="1" max="240" inputmode="numeric">
+            <span>minutes (1 to 240)</span>
+          </div>
+        </form>
+
+        <aside class="timer-card card" aria-label="Session preview">
+          <p class="timer-label" id="preview-mode">Quick Focus</p>
+          <div class="clock clock-xl" id="preview-time">25:00</div>
+          <p class="timer-sub" id="preview-break"></p>
+          <button class="btn btn-primary btn-lg btn-block" id="start-btn" type="button">Start</button>
+          <p class="form-error" id="start-error" role="alert"></p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== PROGRESS ===== -->
+    <section class="view" id="view-progress" data-view="progress" aria-labelledby="progress-title" hidden>
+      <header class="view-head">
+        <h2 id="progress-title">Your progress</h2>
+        <p>Every focused minute counts.</p>
+      </header>
+
+      <div class="stats">
+        <article class="stat stat-today">
+          <h3 class="stat-label">Today's progress</h3>
+          <p class="stat-value" id="stat-today">0 minutes</p>
+          <div class="meter" aria-hidden="true"><span id="today-meter"></span></div>
+          <p class="stat-note" id="stat-today-note"></p>
+        </article>
+        <article class="stat stat-week">
+          <h3 class="stat-label">Weekly study time</h3>
+          <p class="stat-value" id="stat-week">0 minutes</p>
+          <p class="stat-note" id="stat-week-note">Last 7 days, including today</p>
+        </article>
+        <article class="stat stat-sessions">
+          <h3 class="stat-label">Sessions completed</h3>
+          <p class="stat-value" id="stat-sessions">0</p>
+          <p class="stat-note" id="stat-sessions-note"></p>
+        </article>
+        <article class="stat stat-streak">
+          <h3 class="stat-label">Study streak</h3>
+          <p class="stat-value" id="stat-streak">0 days</p>
+          <p class="stat-note" id="stat-streak-note"></p>
+        </article>
+        <article class="stat stat-goals">
+          <h3 class="stat-label">Goals completed</h3>
+          <p class="stat-value" id="stat-goals">0</p>
+          <p class="stat-note" id="stat-goals-note"></p>
+        </article>
+      </div>
+
+      <div class="panels">
+        <section class="card panel panel-week" aria-labelledby="week-title">
+          <h3 id="week-title">Last 7 days</h3>
+          <div class="bars" id="week-bars"></div>
+        </section>
+        <section class="card panel" aria-labelledby="subjects-title">
+          <h3 id="subjects-title">Subjects studied</h3>
+          <ul class="subject-stats" id="subject-stats"></ul>
+        </section>
+        <section class="card panel" aria-labelledby="goals-title">
+          <h3 id="goals-title">Recent goals reached</h3>
+          <ul class="goal-list" id="goal-list"></ul>
+        </section>
+      </div>
+    </section>
+
+    <!-- ===== HISTORY ===== -->
+    <section class="view" id="view-history" data-view="history" aria-labelledby="history-title" hidden>
+      <header class="view-head view-head-row">
+        <div>
+          <h2 id="history-title">Study history</h2>
+          <p>Your most recent sessions appear first.</p>
+        </div>
+        <button class="btn btn-small btn-danger-outline" type="button" id="clear-history">Clear history</button>
+      </header>
+
+      <div class="empty card" id="history-empty">
+        <p><strong>No sessions yet.</strong></p>
+        <p>Finish your first session and it will show up here.</p>
+        <a class="btn btn-primary" href="#study">Start a session</a>
+      </div>
+
+      <div class="table-card card" id="history-wrap">
+        <table class="history-table">
+          <thead>
+            <tr><th scope="col">Date</th><th scope="col">Subject</th><th scope="col">Duration</th><th scope="col">Status</th></tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== STUDY TIPS ===== -->
+    <section class="view" id="view-tips" data-view="tips" aria-labelledby="tips-title" hidden>
+      <header class="view-head">
+        <h2 id="tips-title">Study tips</h2>
+        <p>Small habits that make your study time count.</p>
+      </header>
+
+      <div class="tips">
+        <article class="tip">
+          <h3>Active recall</h3>
+          <p>Close your notes and write or say what you remember. The effort of pulling it from memory is what makes it stick.</p>
+        </article>
+        <article class="tip">
+          <h3>Spaced repetition</h3>
+          <p>Review a topic again after a day, then three days, then a week. Spreading reviews out beats cramming the same hours into one night.</p>
+        </article>
+        <article class="tip">
+          <h3>Practice questions</h3>
+          <p>Test yourself with textbook questions or past papers. Every mistake shows you exactly what to study next.</p>
+        </article>
+        <article class="tip">
+          <h3>Take short breaks</h3>
+          <p>Step away between sessions. Stretch, drink water and look at something far away so your focus can recover.</p>
+        </article>
+        <article class="tip">
+          <h3>Remove distractions</h3>
+          <p>Put your phone in another room and close extra tabs before the timer starts. It is easier than resisting them mid-session.</p>
+        </article>
+        <article class="tip">
+          <h3>Write summaries</h3>
+          <p>After a session, summarize the main ideas in a few lines of your own words. If you get stuck, that is the part to revisit.</p>
+        </article>
+        <article class="tip">
+          <h3>Teach the topic to yourself</h3>
+          <p>Explain it out loud as if you were teaching a friend. Gaps in your explanation point to gaps in your understanding.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section class="view" id="view-settings" data-view="settings" aria-labelledby="settings-title" hidden>
+      <header class="view-head">
+        <h2 id="settings-title">Settings</h2>
+        <p>Make FocusStudy work the way you study. Changes save automatically.</p>
+      </header>
+
+      <div class="settings card">
+        <section class="setting-group" aria-labelledby="g-sessions">
+          <h3 id="g-sessions">Sessions</h3>
+          <div class="setting-row">
+            <div class="setting-text"><label for="set-study">Study duration</label><span>The length selected when you open FocusStudy.</span></div>
+            <div class="setting-control"><input class="input input-sm" id="set-study" type="number" min="1" max="240" inputmode="numeric"> <span>min</span></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-text"><label for="set-break">Break duration</label><span>Recommended picks a break to match your session.</span></div>
+            <div class="setting-control">
+              <select class="input input-sm" id="set-break">
+                <option value="auto">Recommended</option>
+                <option value="5">5 minutes</option>
+                <option value="10">10 minutes</option>
+                <option value="15">15 minutes</option>
+                <option value="20">20 minutes</option>
+                <option value="30">30 minutes</option>
+              </select>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-text"><label for="set-target">Daily study target</label><span>Used for the bar on your progress page.</span></div>
+            <div class="setting-control"><input class="input input-sm" id="set-target" type="number" min="10" max="1000" inputmode="numeric"> <span>min</span></div>
+          </div>
+        </section>
+
+        <section class="setting-group" aria-labelledby="g-alerts">
+          <h3 id="g-alerts">Alerts</h3>
+          <div class="setting-row">
+            <div class="setting-text"><label for="set-sound">Sound notifications</label><span>Play a soft chime when a timer ends.</span></div>
+            <label class="switch"><input type="checkbox" role="switch" id="set-sound"><span class="track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-text"><label for="set-notify">Browser notifications</label><span id="notify-hint">Show a message when a timer ends, even in another tab.</span></div>
+            <label class="switch"><input type="checkbox" role="switch" id="set-notify"><span class="track"></span></label>
+          </div>
+        </section>
+
+        <section class="setting-group" aria-labelledby="g-look">
+          <h3 id="g-look">Appearance</h3>
+          <div class="setting-row">
+            <div class="setting-text"><span class="setting-title" id="theme-label">Theme</span><span>Light, dark, or match your device.</span></div>
+            <div class="segmented" role="radiogroup" aria-labelledby="theme-label">
+              <label><input type="radio" name="theme" value="system"><span>System</span></label>
+              <label><input type="radio" name="theme" value="light"><span>Light</span></label>
+              <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="setting-group" aria-labelledby="g-auto">
+          <h3 id="g-auto">Automation</h3>
+          <div class="setting-row">
+            <div class="setting-text"><label for="set-autobreak">Auto-start break</label><span>Begin your break as soon as a session ends.</span></div>
+            <label class="switch"><input type="checkbox" role="switch" id="set-autobreak"><span class="track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-text"><label for="set-autonext">Auto-start next session</label><span>Begin another session as soon as a break ends.</span></div>
+            <label class="switch"><input type="checkbox" role="switch" id="set-autonext"><span class="track"></span></label>
+          </div>
+        </section>
+
+        <section class="setting-group" aria-labelledby="g-data">
+          <h3 id="g-data">Your data</h3>
+          <div class="setting-row">
+            <div class="setting-text"><span class="setting-title">Erase everything</span><span>Deletes your history, stats and settings from this browser.</span></div>
+            <button class="btn btn-small btn-danger-outline" type="button" id="reset-data">Erase data</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>FocusStudy keeps everything in this browser. Nothing is sent anywhere.</p>
+    </footer>
+  </main>
+
+  <!-- ===== FOCUS MODE (full-screen, distraction free) ===== -->
+  <section class="focus" id="focus" aria-label="Focus mode" hidden>
+    <div class="focus-inner">
+      <p class="focus-phase" id="focus-phase">Focus session</p>
+      <h2 class="focus-subject" id="focus-subject"></h2>
+      <p class="focus-goal" id="focus-goal"></p>
+
+      <div class="ring-wrap ring-wrap-focus">
+        <svg class="ring" id="focus-ring" viewBox="0 0 120 120" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <circle class="ring-track" cx="60" cy="60" r="54" pathLength="100"/>
+          <circle class="ring-arc" id="focus-arc" cx="60" cy="60" r="54" pathLength="100"/>
+        </svg>
+        <div class="ring-time"><span class="clock clock-xl" id="focus-time" role="timer">25:00</span></div>
+      </div>
+
+      <p class="focus-progress" id="focus-progress">0% complete</p>
+      <p class="focus-message" id="focus-message"></p>
+      <div class="focus-goal-done" id="focus-goal-done"></div>
+
+      <div class="focus-controls">
+        <button class="btn btn-primary btn-lg" id="pause-btn" type="button">Pause</button>
+        <div class="focus-extra" id="focus-extra" hidden>
+          <button class="btn btn-quiet" id="reset-btn" type="button">Reset</button>
+          <button class="btn btn-quiet" id="skip-btn" type="button">Skip session</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pop-up used for "session complete", "break over" and confirmations -->
+  <dialog class="dialog" id="dialog" aria-labelledby="dialog-title">
+    <div class="dialog-body" id="dialog-body"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
